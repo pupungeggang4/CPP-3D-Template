@@ -1,12 +1,9 @@
-#include <iostream>
-#ifndef __APPLE__
-#include <SDL3/SDL.h>
-#else
-#include <SDL.h>
-#endif
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+#include <SDL2/SDL.h>
 
-const char* vertexShaderSource = R"(#version 410 core
+const char* vertexShaderSource = R"(#version 330 core
     in vec4 a_position;
     in vec3 a_color;
     uniform vec3 u_rotate;
@@ -51,7 +48,7 @@ const char* vertexShaderSource = R"(#version 410 core
     }
 )";
 
-const char* fragmentShaderSource = R"(#version 410 core
+const char* fragmentShaderSource = R"(#version 330 core
     precision highp float;
     in vec3 p_color;
     out vec4 outColor;
@@ -61,15 +58,25 @@ const char* fragmentShaderSource = R"(#version 410 core
 )";
 
 unsigned int frameCurrent = 0;
-unsigned int frameNext = 0;
+unsigned int framePrevious = 0;
 int delta = 0;
 float rx = 0, ry = 0, rz = 0;
-bool running = true;
-SDL_Window *window;
-SDL_GLContext context;
-float scale;
 
-int main(int argc, char *argv[]) {
+void windowSizeChange(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glfwSwapBuffers(window);
+}
+
+void keyPress(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_ESCAPE) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+}
+
+int main(int argc, char* argv[]) {
     // Data
     float vertices[18] = {
         0.0, 0.5, 0.0, 1.0, 0.0, 0.0,
@@ -77,25 +84,21 @@ int main(int argc, char *argv[]) {
         0.433, -0.25, 0.0, 0.0, 0.0, 1.0
     };
 
-    bDL_Init(SDL_INIT_VIDEO);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    window = SDL_CreateWindow("Triangle Example", 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY);
-    if (window == NULL) {
-        std::cout << SDL_GetError() << std::endl;
-    }
-    #ifndef __APPLE__
-    scale = SDL_GetWindowDisplayScale(window);
-    #else
-    scale = 1;
-    #endif
-    SDL_SetWindowSize(window, 800 * scale, 600 * scale);
-    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-    context = SDL_GL_CreateContext(window);
-    gladLoadGLLoader((GLADloadproc) SDL_GL_GetProcAddress);
-    //gladLoadGL();
-    std::cout << glGetString(GL_VERSION) << std::endl;
+    frameCurrent = SDL_GetTicks();
+    framePrevious = SDL_GetTicks() - 16;
+
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    GLFWwindow* window;
+    window = glfwCreateWindow(800, 600, "Triangle", NULL, NULL);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
+    glfwSetFramebufferSizeCallback(window, windowSizeChange);
+    glfwSetKeyCallback(window, keyPress);
+    gladLoadGL();
 
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -133,22 +136,11 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(laColor, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(laColor);
 
-    while (running) {
+    while (!glfwWindowShouldClose(window)) {
+        framePrevious = frameCurrent;
         frameCurrent = SDL_GetTicks();
-        frameNext = frameCurrent + 16;
-        delta = 16;
+        delta = frameCurrent - framePrevious;
         rz += delta / 1000.0;
-        
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                running = false;
-            }
-
-            if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
-                std::cout << "(" << event.button.x / scale << ", " << event.button.y / scale << ")" <<  std::endl;
-            }
-        }
 
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glEnable(GL_DEPTH_TEST);
@@ -160,14 +152,11 @@ int main(int argc, char *argv[]) {
         glUniform3f(luRot, rx, ry, rz);
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-        //std::cout << SDL_GetTicks() - frameCurrent << std::endl;
-        SDL_GL_SwapWindow(window);
-        
-        frameCurrent = SDL_GetTicks();
-        if (frameCurrent < frameNext) {
-            SDL_Delay(frameNext - frameCurrent);
-        }
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
+    glfwDestroyWindow(window);
+    glfwTerminate();
     return 0;
 }
