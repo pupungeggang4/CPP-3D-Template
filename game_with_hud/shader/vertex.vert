@@ -1,4 +1,3 @@
-// Vertex Shader
 #version 410 core
 uniform int u_mode_v;
 uniform vec3 u_m_pos;

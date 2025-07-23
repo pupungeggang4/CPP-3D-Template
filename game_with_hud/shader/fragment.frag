@@ -1,4 +1,3 @@
-// Fragment Shader
 #version 410 core
 precision highp float;
 uniform sampler2D u_texture;
