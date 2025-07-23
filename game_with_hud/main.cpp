@@ -20,6 +20,13 @@ class Game {
             glfwSetFramebufferSizeCallback(window, cbWindowSizeChange);
             glfwSetKeyCallback(window, cbKeyPress);
             gladLoadGL();
+
+            char *vSource = "a";
+            vShader = glCreateShader(GL_VERTEX_SHADER);
+            glShaderSource(vShader, vSource);
+            glCompileShader(vShader);
+            fShader = glCreateShader(GL_FRAGMENT_SHADER);
+            program = glCreateProgram();
             SDL_Init(SDL_INIT_VIDEO);
         }
 
