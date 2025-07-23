@@ -59,15 +59,13 @@ class Game {
                 std::cout << "f " << infoLog << std::endl;
             }
 
-            luColor = glGetUniformLocation(program, "u_color");
-            luModeV = glGetUniformLocation(program, "u_mode_v");
-            luModeF = glGetUniformLocation(program, "u_mode_f");
             laPosition = glGetAttribLocation(program, "a_position");
 
             glGenVertexArrays(1, &vao);
             glBindVertexArray(vao);
             glGenBuffers(1, &bTriangle);
             glBindBuffer(GL_ARRAY_BUFFER, bTriangle);
+            std::cout << bTriangleData[0] << std::endl;
             glBufferData(GL_ARRAY_BUFFER, sizeof(bTriangleData), bTriangleData, GL_STATIC_DRAW);
 
             SDL_Init(SDL_INIT_VIDEO);
@@ -89,14 +87,12 @@ class Game {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glUseProgram(program);
 
-            glUniform1i(luModeV, 0);
-            glUniform1i(luModeF, 1);
-            glUniform3f(luColor, 0.0, 1.0, 0.0);
             glBindVertexArray(vao);
             glBindBuffer(GL_ARRAY_BUFFER, bTriangle);
             glVertexAttribPointer(laPosition, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(0));
             glEnableVertexAttribArray(laPosition);
             glDrawArrays(GL_TRIANGLES, 0, 3);
+            std::cout << glGetError() << std::endl;
 
             glfwSwapBuffers(window);
             glfwPollEvents();
