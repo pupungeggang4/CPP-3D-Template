@@ -1,11 +1,6 @@
 #pragma once
 #include "general.hpp"
 
-#include "game.hpp"
-#include "glfunc.hpp"
-#include "render.hpp"
-#include "bufferdata.hpp"
-
 class Game {
     public:
         int success;
