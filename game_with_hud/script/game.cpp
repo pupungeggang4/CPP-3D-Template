@@ -14,7 +14,7 @@ Game::Game() {
     glfwSetKeyCallback(window, cbKeyPress);
     gladLoadGL();
 
-    glStart(this);
+    g(this);
 
     SDL_Init(SDL_INIT_VIDEO);
 }

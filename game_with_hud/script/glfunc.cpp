@@ -1,6 +1,6 @@
 #include "glfunc.hpp"
 
-void glStart(Game game) {
+void g(Game game) {
     std::ifstream f;
     f.open("shader/vertex.vert");
     std::stringstream vSourceStr;

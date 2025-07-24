@@ -1,4 +1,4 @@
 #pragma once
 #include "general.hpp"
 
-void glStart(Game game);
+void g(Game *game);
