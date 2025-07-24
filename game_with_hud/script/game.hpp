@@ -1,8 +1,10 @@
 #pragma once
 #include "general.hpp"
 #include "primitive.hpp"
+#include "shader.hpp"
+#include "bufferdata.hpp"
+#include "render.hpp"
 
-template <class TC>
 class Game {
     public:
         int success;
@@ -14,7 +16,7 @@ class Game {
         GLFWwindow* window;
         GLFWmonitor* monitor;
         unsigned int lastUpdate = 0, current = 0, delta = 16, fps = 60;
-        TC c = Cuboid3(0.0, 0.0, 1.0, 0.2, 0.2, 0.2, 0.0, 0.0, 0.0);
+        Cuboid3 c = Cuboid3(0.0, 0.0, 1.0, 0.2, 0.2, 0.2, 0.0, 0.0, 0.0);
 
         Game();
         void run();

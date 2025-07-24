@@ -10,9 +10,3 @@
 #include <glfw/glfw3.h>
 #endif
 #include <SDL3/SDL.h>
-
-#include "game.hpp"
-#include "bufferdata.hpp"
-#include "shader.hpp"
-#include "primitive.hpp"
-#include "render.hpp"

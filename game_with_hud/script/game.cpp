@@ -1,4 +1,3 @@
-#include "general.hpp"
 #include "game.hpp"
 
 Game::Game() {
@@ -114,6 +113,8 @@ void Game::loop() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
 
+    c.rot.x += 0.5 * delta / 1000.0;
+    c.rot.y += 0.5 * delta / 1000.0;
     renderCuboid(this, &c);
     
     glfwSwapBuffers(window);
