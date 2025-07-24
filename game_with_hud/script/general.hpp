@@ -11,6 +11,8 @@
 #endif
 #include <SDL3/SDL.h>
 
-#include "glfunc.hpp"
 #include "game.hpp"
 #include "bufferdata.hpp"
+#include "shader.hpp"
+#include "primitive.hpp"
+#include "render.hpp"
