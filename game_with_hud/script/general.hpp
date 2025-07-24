@@ -4,10 +4,13 @@
 #include <fstream>
 #include <sstream>
 #include <glad/glad.h>
+#ifndef __APPLE__
 #include <GLFW/glfw3.h>
+#else
+#include <glfw/glfw3.h>
+#endif
 #include <SDL3/SDL.h>
 
-#include "game.hpp"
 #include "glfunc.hpp"
-#include "render.hpp"
+#include "game.hpp"
 #include "bufferdata.hpp"
