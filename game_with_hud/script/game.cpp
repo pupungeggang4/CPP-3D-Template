@@ -43,7 +43,7 @@ void Game::gameGLInit() {
     glCompileShader(fShader);
     program = glCreateProgram();
     glAttachShader(program, vShader);
-    glAttachShader(program, vShader);
+    glAttachShader(program, fShader);
     glLinkProgram(program);
 
     glGetShaderiv(vShader, GL_COMPILE_STATUS, &success);

@@ -44,5 +44,6 @@
 *.png~
 *.swp
 Release/
+main
 
 glad/
