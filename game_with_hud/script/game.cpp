@@ -17,8 +17,6 @@ Game::Game() {
     gameGLInit();
 
     SDL_Init(SDL_INIT_VIDEO);
-
-    std::cout << 2 << std::endl;
 }
 
 void Game::gameGLInit() {
@@ -113,6 +111,7 @@ void Game::loop() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
 
+    glEnable(GL_DEPTH_TEST);
     c.rot.x += 0.5 * delta / 1000.0;
     c.rot.y += 0.5 * delta / 1000.0;
     renderCuboid(this, &c);

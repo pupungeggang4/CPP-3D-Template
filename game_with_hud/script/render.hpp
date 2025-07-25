@@ -5,7 +5,7 @@ template <class TG, class TC>
 void renderCuboid(TG *game, TC *cuboid) {
     glUniform1i(game->luModeV, 1);
     glUniform1i(game->luModeF, 3);
-    glUniform3f(game->luColor, 0.0, 1.0, 0.0);
+    glUniform3f(game->luColor, 0.0, 1.0, 1.0);
     glUniform3f(game->luMSize, cuboid->size.x, cuboid->size.y, cuboid->size.z);
     glUniform3f(game->luMPos, cuboid->pos.x, cuboid->pos.y, cuboid->pos.z);
     glUniform3f(game->luMRot, cuboid->rot.x, cuboid->rot.y, cuboid->rot.z);
