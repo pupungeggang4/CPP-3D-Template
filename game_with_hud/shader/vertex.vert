@@ -51,7 +51,7 @@ void main() {
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, 1.0, 0.0,
-            u_c_pos.x, u_c_pos.y, u_c_pos.z, 1.0
+            -u_c_pos.x, -u_c_pos.y, -u_c_pos.z, 1.0
         );
         mat4 m_z_inv = mat4(
             1.0, 0.0, 0.0, 0.0,
@@ -71,8 +71,8 @@ void main() {
         );
         vec4 pos = a_position;
         pos = m_m_pos * m_m_rot_z * m_m_rot_y * m_m_rot_x * m_m_size * pos;
-        pos = m_z_inv * pos;
         pos = m_c_pos * pos;
+        pos = m_z_inv * pos;
         pos = m_c_proj * pos;
         gl_Position = pos;
         vec4 normal = vec4(normalize(a_normal), 1.0);

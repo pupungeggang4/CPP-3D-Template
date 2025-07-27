@@ -1,5 +1,5 @@
 #include "script/general.hpp"
-#include "script/game.hpp"
+#include "script/objs.hpp"
 
 int main(int argc, char *argv[]) {
     Game game = Game();

@@ -1,6 +1,9 @@
-#include "game.hpp"
+#include "general.hpp"
+#include "objs.hpp"
 
 Game::Game() {
+    std::srand((unsigned int)std::time(NULL));
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -17,27 +20,38 @@ Game::Game() {
     gameGLInit();
 
     SDL_Init(SDL_INIT_VIDEO);
+    for (int i = 0; i < 10; i++) {
+        float x = std::rand() % 200 / 200.0 * 2.0 - 1.0;
+        float y = std::rand() % 200 / 200.0 * 2.0 - 1.0;
+        float z = std::rand() % 200 / 200.0 * 2.0;
+        c.push_back(ColorCuboid3(x, y, z, 0.4, 0.4, 0.4, 0.0, 0.0, 0.0));
+        c[i].setColor(float(std::rand()) / RAND_MAX, float(std::rand()) / RAND_MAX, float(std::rand()) / RAND_MAX);
+    }
 }
 
 void Game::gameGLInit() {
     std::ifstream f;
     f.open("shader/vertex.vert");
-    std::stringstream vSourceStr;
-    vSourceStr << f.rdbuf();
-    const GLchar *vSource = vSourceStr.str().c_str();
+    std::stringstream vSourceSS;
+    vSourceSS << f.rdbuf();
+    std::string vSourceStr = vSourceSS.str();
+    vSourceStr.append(1, 0);
+    const GLchar *vSource = vSourceStr.c_str();
     f.close();
 
     f.open("shader/fragment.frag");
-    std::stringstream fSourceStr;
-    fSourceStr << f.rdbuf();
-    const GLchar *fSource = fSourceStr.str().c_str();
+    std::stringstream fSourceSS;
+    fSourceSS << f.rdbuf();
+    std::string fSourceStr = fSourceSS.str();
+    fSourceStr.append(1, 0);
+    const GLchar *fSource = fSourceStr.c_str();
     f.close();
 
     vShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vShader, 1, &vShaderSource, NULL);
+    glShaderSource(vShader, 1, &vSource, NULL);
     glCompileShader(vShader);
     fShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fShader, 1, &fShaderSource, NULL);
+    glShaderSource(fShader, 1, &fSource, NULL);
     glCompileShader(fShader);
     program = glCreateProgram();
     glAttachShader(program, vShader);
@@ -101,7 +115,7 @@ void Game::run() {
         delta = current - lastUpdate;
         if (delta >= 1000 / fps) {
             lastUpdate = current;
-            this->loop();
+            loop();
         }
     }
 }
@@ -112,10 +126,13 @@ void Game::loop() {
     glUseProgram(program);
 
     glEnable(GL_DEPTH_TEST);
-    c.rot.x += 0.5 * delta / 1000.0;
-    c.rot.y += 0.5 * delta / 1000.0;
-    renderCuboid(this, &c);
-    
+
+    for (int i = 0; i < c.size(); i++) {
+        c[i].rot.x += 0.5 * delta / 1000.0;
+        c[i].rot.y += 0.5 * delta / 1000.0;
+        renderColorCuboid(this, &c[i]);
+    }
+
     glfwSwapBuffers(window);
     glfwPollEvents();
 }
