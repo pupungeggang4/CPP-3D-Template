@@ -4,21 +4,8 @@
 Game::Game() {
     std::srand((unsigned int)std::time(NULL));
 
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
-    window = glfwCreateWindow(800, 600, "OpenGL 3D With HUD Template", NULL, NULL);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
-    glfwSetFramebufferSizeCallback(window, cbWindowSizeChange);
-    glfwSetKeyCallback(window, cbKeyPress);
-    gladLoadGL();
-
-    gameGLInit();
     gameSDLInit();
+    gameGLInit();
 
     for (int i = 0; i < 10; i++) {
         float x = std::rand() % 200 / 200.0 * 2.0 - 1.0;
@@ -109,22 +96,40 @@ void Game::gameGLInit() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    float xscale, yscale;
-    monitor = glfwGetPrimaryMonitor();
-    glfwGetWindowContentScale(window, &xscale, &yscale);
-    glViewport(0, 0, 800 * xscale, 600 * yscale);
 }
 
-void Game::gameSDLInit() {
+void Game::gameSDLInit() {    
     SDL_Init(SDL_INIT_VIDEO);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    window = SDL_CreateWindow("Triangle Example", 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+    #ifndef __APPLE__
+    scale = SDL_GetWindowDisplayScale(window);
+    #else
+    scale = 1;
+    #endif
+    SDL_SetWindowSize(window, 800 * scale, 600 * scale);
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    context = SDL_GL_CreateContext(window);
+    gladLoadGL();
     uiSurface = SDL_CreateSurface(800, 600, SDL_PIXELFORMAT_RGBA8888);
 }
 
 void Game::run() {
-    while (!glfwWindowShouldClose(window)) {
+    while (running) {
         current = SDL_GetTicks();
         delta = current - lastUpdate;
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
+                running = false;
+            }
+
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+                std::cout << "(" << event.button.x / scale << ", " << event.button.y / scale << ")" <<  std::endl;
+            }
+        }
+
         if (delta >= 1000 / fps) {
             lastUpdate = current;
             loop();
@@ -133,16 +138,17 @@ void Game::run() {
 }
 
 void Game::loop() {
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(program);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     SDL_Rect rect = {0, 0, 40, 40};
     Uint32 color = 0xFFFFFFFF;
     SDL_FillSurfaceRect(uiSurface, NULL, 0x00000000);
     SDL_FillSurfaceRect(uiSurface, &rect, 0xFFFFFFFF);
+
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUseProgram(program);
+    glEnable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glDisable(GL_DEPTH_TEST);
     glBindVertexArray(vao);
@@ -168,17 +174,5 @@ void Game::loop() {
         renderColorCuboid(this, &c[i]);
     }
 
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-}
-
-void Game::cbWindowSizeChange(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glfwSwapBuffers(window);
-}
-
-void Game::cbKeyPress(GLFWwindow* window, int key, int scancode, int action, int mods) {
-
+    SDL_GL_SwapWindow(window);
 }
