@@ -138,10 +138,8 @@ void Game::run() {
 }
 
 void Game::loop() {
-    SDL_Rect rect = {0, 0, 40, 40};
-    Uint32 color = 0xFFFFFFFF;
     SDL_FillSurfaceRect(uiSurface, NULL, 0x00000000);
-    SDL_FillSurfaceRect(uiSurface, &rect, 0xFFFFFFFF);
+    renderHUD(this);
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -165,7 +163,7 @@ void Game::loop() {
     glEnableVertexAttribArray(laPosition);
     glEnableVertexAttribArray(laTexcoord);
     glDisableVertexAttribArray(laNormal);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void*)(0));
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glEnable(GL_DEPTH_TEST);
     for (int i = 0; i < c.size(); i++) {

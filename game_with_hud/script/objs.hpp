@@ -47,4 +47,4 @@ class Game {
 };
 
 void renderColorCuboid(Game *game, ColorCuboid3 *cuboid);
-void renderUI(Game *game);
+void renderHUD(Game *game);
