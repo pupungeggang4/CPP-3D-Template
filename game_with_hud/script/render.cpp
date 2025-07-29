@@ -25,3 +25,9 @@ void renderColorCuboid(Game *game, ColorCuboid3 *cuboid) {
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, (void*)(0));
 }
 
+void renderUI(Game *game) {
+    SDL_Rect rect = {20, 20, 40, 40};
+    Uint32 color = 0xFFFFFFFF;
+    SDL_FillSurfaceRect(game->uiSurface, &rect, 0xFFFFFFFF);
+}
+

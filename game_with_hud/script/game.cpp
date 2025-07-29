@@ -18,8 +18,8 @@ Game::Game() {
     gladLoadGL();
 
     gameGLInit();
+    gameSDLInit();
 
-    SDL_Init(SDL_INIT_VIDEO);
     for (int i = 0; i < 10; i++) {
         float x = std::rand() % 200 / 200.0 * 2.0 - 1.0;
         float y = std::rand() % 200 / 200.0 * 2.0 - 1.0;
@@ -103,10 +103,22 @@ void Game::gameGLInit() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bCuboidIndex);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(bCuboidIndexData), bCuboidIndexData, GL_STATIC_DRAW);
 
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
     float xscale, yscale;
     monitor = glfwGetPrimaryMonitor();
     glfwGetWindowContentScale(window, &xscale, &yscale);
     glViewport(0, 0, 800 * xscale, 600 * yscale);
+}
+
+void Game::gameSDLInit() {
+    SDL_Init(SDL_INIT_VIDEO);
+    uiSurface = SDL_CreateSurface(800, 600, SDL_PIXELFORMAT_RGBA8888);
 }
 
 void Game::run() {
@@ -124,9 +136,32 @@ void Game::loop() {
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    SDL_Rect rect = {0, 0, 40, 40};
+    Uint32 color = 0xFFFFFFFF;
+    SDL_FillSurfaceRect(uiSurface, NULL, 0x00000000);
+    SDL_FillSurfaceRect(uiSurface, &rect, 0xFFFFFFFF);
+
+    glDisable(GL_DEPTH_TEST);
+    glBindVertexArray(vao);
+    glUniform1i(luModeV, 0);
+    glUniform1i(luModeF, 0);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, uiSurface->w, uiSurface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, uiSurface->pixels);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, bHUD);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bHUDIndex);
+    glVertexAttribPointer(laPosition, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(0));
+    glVertexAttribPointer(laTexcoord, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(laPosition);
+    glEnableVertexAttribArray(laTexcoord);
+    glDisableVertexAttribArray(laNormal);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void*)(0));
 
     glEnable(GL_DEPTH_TEST);
-
     for (int i = 0; i < c.size(); i++) {
         c[i].rot.x += 0.5 * delta / 1000.0;
         c[i].rot.y += 0.5 * delta / 1000.0;
